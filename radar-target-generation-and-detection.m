@@ -113,15 +113,16 @@ f1 = abs(f1);
 f1 = f1(1:Nr/2);
 
 %plotting the range
-figure ('Name','Range from First FFT');
-subplot(2,1,1);
+figure ('Name','Radar Detection Results');
+subplot(3,1,1);
+
+
 
  % *%TODO* :
  % plot FFT output 
-f = 1.0/dt * (1:Nr/2+1) / Nr;
 plot(f1);
 axis ([0 200 0 1]);
-
+title('Range from First FFT')  
 
 %% RANGE DOPPLER RESPONSE
 % The 2D FFT implementation is already provided here. This will run a 2DFFT
@@ -150,7 +151,12 @@ RDM = 10*log10(RDM) ;
 %dimensions
 doppler_axis = linspace(-100,100,Nd);
 range_axis = linspace(-200,200,Nr/2)*((Nr/2)/400);
-figure,surf(doppler_axis,range_axis,RDM);
+
+subplot(3,1,2);
+
+
+surf(doppler_axis,range_axis,RDM);
+title('2D FFT')
 
 %% CFAR implementation
 
@@ -228,9 +234,7 @@ end
 % *%TODO* :
 %display the CFAR output using the Surf function like we did for Range
 %Doppler Response output.
-figure,surf(doppler_axis,range_axis,signal_cfar);
+subplot(3,1,3);
+surf(doppler_axis,range_axis,signal_cfar);
 colorbar;
-
-
- 
- 
+title('CFAR')
