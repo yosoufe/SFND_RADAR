@@ -14,7 +14,7 @@ This project practices how to generate 2d FFT from the TX, RX and IR signals and
 
 Radar System Requirements
 
-| | | |
-|-|-|-|
+|Radar Specification|Value|
+|-|-|
 |__Bold Key__| Value1 |
 | Normal Key | Value2 |
