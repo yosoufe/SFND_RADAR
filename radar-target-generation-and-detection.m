@@ -158,13 +158,18 @@ figure,surf(doppler_axis,range_axis,RDM);
 
 % *%TODO* :
 %Select the number of Training Cells in both the dimensions.
+T = [12,6];
 
 % *%TODO* :
 %Select the number of Guard Cells in both dimensions around the Cell under 
 %test (CUT) for accurate estimation
+G = [4,2];
 
 % *%TODO* :
 % offset the threshold by SNR value in dB
+offset = 5;
+threshold_cfar = zeros(size(RDM))-1;
+signal_cfar = zeros(size(RDM));
 
 % *%TODO* :
 %Create a vector to store noise_level for each iteration on training cells
@@ -181,10 +186,30 @@ noise_level = zeros(1,1);
 %Further add the offset to it to determine the threshold. Next, compare the
 %signal under CUT with this threshold. If the CUT level > threshold assign
 %it a value of 1, else equate it to 0.
+siz = size(RDM);
+x_shape = siz(1);
+y_shape = siz(2);
 
-
-   % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
-   % CFAR
+for i = (  (T(1) + G(1) + 1 )  :  (x_shape - ( T(1) + G(1) + 1 ))  )
+    for j = (  (T(2) + G(2) + 1 )  :  (y_shape - ( T(2) + G(2) + 1 ))  )
+        % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
+        % CFAR
+        noise_level = sum(db2pow(RDM( i-T(1)-G(1) : i + T(1)+ G(1), j-T(2)-G(2) : j + T(2)+ G(2)  )),'all') - ...
+            sum(db2pow(RDM( i-G(1) : i + G(1), j-G(2) : j + G(2)  )),'all');
+        
+        num_cells_in_noise_level = (2*(T(1)+G(1))+1) * (2*(T(2)+G(2))+1) ...
+            - (2*G(1)+1)* (2*G(2)+1);
+        threshold = pow2db(noise_level / num_cells_in_noise_level);
+        threshold = threshold + offset;
+        threshold_cfar(i,j) = threshold;
+        
+        CUT = RDM(i,j);
+        
+        if (CUT > threshold)
+            signal_cfar(i,j) = 1;
+        end
+    end
+end
 
 
 
@@ -195,19 +220,15 @@ noise_level = zeros(1,1);
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
+
+% not required because signal_cfar is initilaized by zeros and those values
+% are never updated in the above for loop
  
-
-
-
-
-
-
-
 
 % *%TODO* :
 %display the CFAR output using the Surf function like we did for Range
 %Doppler Response output.
-figure,surf(doppler_axis,range_axis,'replace this with output');
+figure,surf(doppler_axis,range_axis,signal_cfar);
 colorbar;
 
 
